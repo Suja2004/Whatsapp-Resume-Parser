@@ -4,7 +4,7 @@ A Python-based application that automatically parses resumes sent via WhatsApp. 
 
 ## Features
 
-- **Automated resume parsing via WhatsApp**.
+- **Automated resume parsing via WhatsApp** using Twilio integration.
 - Extracts:
   - **Name**
   - **Email**
@@ -14,9 +14,11 @@ A Python-based application that automatically parses resumes sent via WhatsApp. 
   - **CGPA/GPA**
 - Supports **PDF and text resumes**.
 - Uses **`dslim/bert-base-NER`** for accurate name extraction.
-- Handles various resume formats and abbreviations (IIT, NIT, VIT, etc.).
-- Saves extracted details in CSV for easy access.
-- Designed to work **seamlessly with Twilio WhatsApp integration**.
+- Handles various resume formats and institute abbreviations (IIT, NIT, VIT, etc.).
+- Displays parsed resumes on a **web dashboard**.
+- Allows **export of all extracted details to CSV or XLSX**.
+- Saves extracted details in CSV for backup and offline access.
+- Designed for **real-time, automated workflow**.
 
 ## Installation
 
@@ -59,10 +61,17 @@ TWILIO_AUTH_TOKEN=your_twilio_auth_token
      ```
    - Copy the HTTPS forwarding URL.
 
-5. **Configure Twilio Webhook**
+3. **Configure Twilio Webhook**
    - In sandbox settings, set **When a message comes in** URL to:
      ```
      https://your-ngrok-id.ngrok.io/whatsapp
      ```
    - Send a resume via WhatsApp to your Twilio number.
    - The app will parse the resume and save the extracted details in a CSV file.
+
+4. **Web Dashboard**
+   - Access the dashboard at:
+     ```
+     http://localhost:5000/admin
+     ```
+   - View all submitted resumes, filter by CGPA, update status, and export data to **Excel/XLSX**.
