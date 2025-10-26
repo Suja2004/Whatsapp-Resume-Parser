@@ -41,19 +41,28 @@ pip install -r requirements.txt
 TWILIO_SID=your_twilio_sid
 TWILIO_AUTH_TOKEN=your_twilio_auth_token
 ```
-* Ensure the resumes/ folder exists for storing incoming PDFs .
 
-## Usage
-* Run the Flask server:
-```
-python app.py
-```
-* Send a resume via WhatsApp to your Twilio number.
-* The app will parse the resume and save the extracted details in a CSV file.
+## Setup
 
-### Notes
+1. **Twilio Sandbox**
+   - Join sandbox by sending the join code to Twilio number.
+   - Note your sandbox number.
 
-* Twilio WhatsApp sandbox is required for testing.
-* The NER model may show warnings about unused weights — these can be ignored.
-* Ensure .env contains valid credentials and is never committed to Git.
+2. **Expose Local Server**
+   - Start Flask:
+     ```
+     python app.py
+     ```
+   - Start ngrok to forward port 5000:
+     ```
+     ngrok http 5000
+     ```
+   - Copy the HTTPS forwarding URL.
 
+5. **Configure Twilio Webhook**
+   - In sandbox settings, set **When a message comes in** URL to:
+     ```
+     https://your-ngrok-id.ngrok.io/whatsapp
+     ```
+   - Send a resume via WhatsApp to your Twilio number.
+   - The app will parse the resume and save the extracted details in a CSV file.

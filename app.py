@@ -91,72 +91,67 @@ def home():
 
 @app.route("/whatsapp", methods=["POST"])
 def whatsapp_webhook():
-    """Handle incoming WhatsApp messages"""
-    msg = request.values.get("Body", "")
+    """Handle incoming WhatsApp messages (PDF or text)"""
+    msg = request.values.get("Body", "").strip()
     media_url = request.values.get("MediaUrl0", None)
     sender = request.values.get("From", "").replace("whatsapp:", "")
 
     resp = MessagingResponse()
 
-    # Check if media is attached
-    if not media_url:
-        resp.message("📄 Please send your resume as a PDF file.")
-        return str(resp)
-
     try:
-        # Create directory if it doesn't exist
         os.makedirs("resumes", exist_ok=True)
+        text = ""
 
-        # Generate unique filename using sender number
-        safe_sender = sender.replace("+", "").replace(":", "")
-        file_path = os.path.join("resumes", f"resume_{safe_sender}.pdf")
+        # 1️⃣ If PDF is sent
+        if media_url:
+            safe_sender = sender.replace("+", "").replace(":", "")
+            file_path = os.path.join("resumes", f"resume_{safe_sender}.pdf")
 
-        # Download the PDF
-        download_media(media_url, file_path)
+            download_media(media_url, file_path)
 
-        # Verify it's a PDF
-        if not is_pdf(file_path):
-            resp.message("⚠️ Please send a PDF file only.")
-            os.remove(file_path)
+            if not is_pdf(file_path):
+                os.remove(file_path)
+                resp.message("⚠️ Please send a PDF file only.")
+                return str(resp)
+
+            text = extract_text_from_pdf(file_path)
+
+            if not text or len(text.strip()) < 20:
+                resp.message(
+                    "⚠️ Could not extract text from PDF. Ensure it's not image-based or password-protected."
+                )
+                return str(resp)
+
+        # 2️⃣ If plain text is sent (no PDF)
+        elif msg:
+            text = msg
+
+        # 3️⃣ If neither, ask for input
+        else:
+            resp.message("📄 Please send your resume as a PDF or paste it as plain text.")
             return str(resp)
 
-        # Extract text from PDF
-        print(f"📖 Extracting text from {file_path}...")
-        text = extract_text_from_pdf(file_path)
-
-        if not text or len(text.strip()) < 50:
-            resp.message(
-                "⚠️ Could not extract text from PDF. Please ensure it's not image-based or password-protected.")
-            return str(resp)
-
-        print(f"📝 Extracted {len(text)} characters")
-
-        # Extract details using AI
-        print("🤖 Analyzing resume...")
+        # Extract details
+        print("🤖 Extracting candidate details...")
         details = extract_details_huggingface(text, sender)
 
         print(f"✅ Extracted details: {details}")
 
         # Save to CSV
         saved = save_to_csv(details)
-
         if not saved:
             resp.message("⚠️ This email has already been submitted!")
             return str(resp)
 
-        # Build response message with extracted info
-        response_msg = "✅ Resume processed successfully!\n\n"
-        resp.message(response_msg)
+        resp.message("✅ Resume processed successfully!")
 
     except Exception as e:
-        print(f"❌ Error processing resume: {e}")
+        print(f"❌ Error processing resume/text: {e}")
         import traceback
         traceback.print_exc()
-        resp.message(
-            f"❌ Error processing resume: {str(e)}\nPlease try again or contact support.")
+        resp.message(f"❌ Error: {str(e)}. Please try again.")
 
     return str(resp)
-
 
 @app.route("/health", methods=["GET"])
 def health_check():
