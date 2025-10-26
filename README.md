@@ -22,8 +22,8 @@ A Python-based application that automatically parses resumes sent via WhatsApp. 
 
 ```
 # Clone the repository
-git clone https://github.com/your-username/whatsapp-resume-parser.git
-cd whatsapp-resume-parser
+git clone https://github.com/Suja2004/Whatsapp-Resume-Parser.git
+cd Whatsapp-Resume-Parser
 
 # Create virtual environment
 python -m venv .venv
@@ -40,7 +40,6 @@ pip install -r requirements.txt
 ```
 TWILIO_SID=your_twilio_sid
 TWILIO_AUTH_TOKEN=your_twilio_auth_token
-TWILIO_PHONE_NUMBER=whatsapp:+1234567890
 ```
 * Ensure the resumes/ folder exists for storing incoming PDFs .
 
